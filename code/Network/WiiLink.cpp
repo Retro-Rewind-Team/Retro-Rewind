@@ -43,11 +43,12 @@ bool GenerateRandomSalt(u8 *out)
         return false;
     }
 
-    u8 dummy = 0x7a;
-    u8 eccCert[0x180];
-    u8 eccSignature[0x3C];
+    u8 dummy[0x20] __attribute((aligned(0x40)));
+    dummy[0] = 0x7a;
+    u8 eccCert[0x180] __attribute((aligned(0x40)));
+    u8 eccSignature[0x3C] __attribute((aligned(0x40)));
 
-    IOS::IOCtlvRequest vec[3];
+    IOS::IOCtlvRequest vec[3] __attribute((aligned(0x40)));
     vec[0].address = &dummy;
     vec[0].size = 1;
     vec[1].address = eccSignature;
@@ -192,6 +193,14 @@ kmBranchDefCpp(
         saltHex[i * 2 + 1] = hexConv[salt[i] & 0xf];
     }
     saltHex[SHA256_DIGEST_SIZE * 2] = 0;
+
+    // "Anticheat"
+    // Check for the presence of the gecko codehandler, and halt online connections if it is found
+    if (*(u8 *)0x800018A8 == 0x94)
+    {
+        s_auth_error = WL_ERROR_GECKO;
+        return;
+    }
 
     char uri[0x100];
     sprintf(uri, "payload?g=RMC%cD00&s=%s", *(char *)0x80000003, saltHex);

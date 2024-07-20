@@ -160,6 +160,7 @@ typedef struct {
 } __attribute__((packed)) wwfc_patch;
 
 #  define WL_ERROR_PAYLOAD_OK 0
+#  define WL_ERROR_GECKO -20900
 #  define WL_ERROR_PAYLOAD_STAGE0_MISSING_STAGE1 -20901
 #  define WL_ERROR_PAYLOAD_STAGE0_HASH_MISMATCH -20902
 #  define WL_ERROR_PAYLOAD_STAGE1_ALLOC -20910

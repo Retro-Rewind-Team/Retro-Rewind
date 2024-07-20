@@ -17,7 +17,7 @@ void System::AfterInit(){
 
     Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR]=4;
     Pulsar::UI::SettingsPanel::scrollerCount[SETTINGSTYPE_RR]=1;
-    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=3;
+    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=2;
 
     //Transmission
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR][0]=4;
@@ -40,7 +40,7 @@ void System::AfterInit(){
     //Result Display
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][1]=2;
     
-    //Brake Drifting
+    //Brake Drifting [Unused]
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][2]=2;
 
     //Worldwide Option [Unused]
@@ -295,7 +295,7 @@ mr r3, r30;
 blr;
     )
 }
-kmCall (0x80594AA8, GetHybridDrift7);
+kmCall(0x80594AA8, GetHybridDrift7);
 
 kmWrite8(0x8059450E, 0x00000020);
 kmWrite32(0x80594A60, 0x60000000);
