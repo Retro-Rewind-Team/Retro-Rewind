@@ -303,6 +303,69 @@ kmWrite32(0x805A35BC, 0x38600000);
 kmWrite16(0x80745AB0, 0x00004800);
 kmWrite32(0x808CB70A, 0x00000000);
 
+///// Reverts vehicles speeds from going over assigned speedlimits (v.1) [mattsumi]
+//kmWrite32(0x8057b9ac, 0x80610014); 
+//kmWrite32(0x8057b9b0, 0xC0210000); 
+//kmWrite32(0x8057b9b4, 0xC0410020); 
+//kmWrite32(0x8057b9b8, 0xC061002C); 
+//kmWrite32(0x8057b9bc, 0xEC420028); 
+//kmWrite32(0x8057b9c0, 0xFC401840); 
+//kmWrite32(0x8057b9c4, 0x40810008); 
+//kmWrite32(0x8057b9c8, 0xD0410020); 
+//kmWrite32(0x8057b9cc, 0x60000000); 
+//
+///// ASM for the above
+// asmFunc NormalizeSpeed() {
+//    ASM(
+//        lwz r3, 0x14(r1); // Load baseSpeed into r3 (assuming r1 points to the Movement class instance)
+//        lfs f1, 0(r1); // Load speedMultiplier into f1
+//        lfs f2, 0x20(r1); // Load engineSpeed into f2
+//        lfs f3, 0x2C(r1); // Load hardSpeedLimit into f3
+//        fmuls f2, f2, f1; // Multiply engineSpeed by speedMultiplier
+//        fcmpo cr0, f2, f3; // Compare the result with hardSpeedLimit
+//        ble 0f; // If less than or equal, branch to end (no change needed)
+//        stfs f3, 0x20(r1); // Store hardSpeedLimit back, overriding excessive speed
+//        0:;
+//    )
+//}
+//kmCall(0x8057b9ac, NormalizeSpeed); // Call the function at the original location
+//
+
+///// Prevents client from using Item Change Cheats (v.1) [mattsumi]
+//kmWrite32(0x8052D4B0, 0x80610088); 
+//kmWrite32(0x8052D4B4, 0x80830004); 
+//kmWrite32(0x8052D4B8, 0x2C040000); 
+//kmWrite32(0x8052D4BC, 0x4082001C); 
+//kmWrite32(0x8052D4C0, 0x38800000); 
+//kmWrite32(0x8052D4C4, 0x90830004); 
+//kmWrite32(0x8052D4C8, 0x806100E8); 
+//kmWrite32(0x8052D4CC, 0x2C030001); 
+//kmWrite32(0x8052D4D0, 0x4082000C); 
+//kmWrite32(0x8052D4D4, 0x38800000); 
+//kmWrite32(0x8052D4D8, 0x908100E8); 
+//kmWrite32(0x8052D4DC, 0x60000000); 
+//kmWrite32(0x8052D4E0, 0x60000000); 
+//
+///// ASM for the above function
+//asmFunc RevertItemCheats() {
+//    ASM(
+//        lwz r3, 0x88(r1); // Load address of PlayerInventory from stack
+//        lwz r4, 0x4(r3); // Load currentItemId from PlayerInventory
+//        cmpwi r4, 0x0; // Compare currentItemId to 0 (no item)
+//        beq no_item; // If no item, skip to no_item
+//        li r4, 0x0; // Set r4 to 0 (no item)
+//        stw r4, 0x4(r3); // Store 0 into currentItemId (remove item)
+//        lwz r5, 0x234(r1); // Load address of hudSlotId from stack
+//        cmpwi r5, 0x1; // Check if hudSlotId is 1 (item being used)
+//        bne no_item; // If not using item, skip to no_item
+//        li r5, 0x0; // Set r5 to 0 (no item being used)
+//        stw r5, 0x234(r1); // Store 0 into hudSlotId (stop using item)
+//        no_item:
+//    )
+//}
+//kmCall(0x8052D4B0, RevertItemCheats); // Call the function at the original location
+//
+
 ////TT Start Position
 //kmWrite32(0x80536304, 0x38000002);
 //
