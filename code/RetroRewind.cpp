@@ -17,7 +17,7 @@ void System::AfterInit(){
 
     Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR]=4;
     Pulsar::UI::SettingsPanel::scrollerCount[SETTINGSTYPE_RR]=1;
-    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=2;
+    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=3;
 
     //Transmission
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR][0]=4;
@@ -40,7 +40,7 @@ void System::AfterInit(){
     //Result Display
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][1]=2;
     
-    //Brake Drifting [Unused]
+    //Brake Drifting
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][2]=2;
 
     //Worldwide Option [Unused]
@@ -180,6 +180,10 @@ kmWrite16(0x8064BC4E, 0x000010D7);
 kmWrite16(0x8064BCB6, 0x00000484);
 kmWrite16(0x8064BCC2, 0x000010D7);
 
+//Allow WFC on Wiimmfi Patched ISOs
+kmWrite32(0x800EE3A0, 0x2C030000);
+kmWrite32(0x800ECAAC, 0x7C7E1B78);
+
 //VR System Changes [MrBean35000vr]
 //Multiply VR difference by 2 [Winner]
 asmFunc GetVRScaleWin() {
@@ -303,23 +307,23 @@ kmWrite32(0x805A35BC, 0x38600000);
 kmWrite16(0x80745AB0, 0x00004800);
 kmWrite32(0x808CB70A, 0x00000000);
 
-////TT Start Position
-//kmWrite32(0x80536304, 0x38000002);
-//
-////Start with Triple Shrooms
-//kmWrite32(0x807997D8, 0x38000001);
-//
-////No Kart/Bike Collision
-//kmWrite32(0x8056F874, 0x48000008);
-//
-////No Item Boxes
-//kmWrite32(0x8082A4DC, 0x48000010);
-//
-////Disable Slip Stream
-//kmWrite32(0x80587000, 0x2C030001);
-//
-////Item Vanish
-//kmWrite32(0x8079F744, 0x2C00000A);
-//kmWrite32(0x8079F748, 0xFD810040);
+//TT Start Position
+kmWrite32(0x80536304, 0x38000002);
+
+//Start with Triple Shrooms
+kmWrite32(0x807997D8, 0x38000001);
+
+//No Kart/Bike Collision
+kmWrite32(0x8056F874, 0x48000008);
+
+//No Item Boxes
+kmWrite32(0x8082A4DC, 0x48000010);
+
+//Disable Slip Stream
+kmWrite32(0x80587000, 0x2C030001);
+
+//Item Vanish
+kmWrite32(0x8079F744, 0x2C00000A);
+kmWrite32(0x8079F748, 0xFD810040);
 
 } // namespace RetroRewind
