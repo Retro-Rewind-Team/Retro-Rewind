@@ -4,6 +4,15 @@
 #include <MarioKartWii/GlobalFunctions.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
 
+extern u32 u32_TT_START_POSITION;
+extern u32 u32_TRIPLE_SHROOMS;
+extern u32 u32_NO_COLLISION;
+extern u32 u32_NO_BOXES;
+extern u32 u32_NO_SLIP;
+extern u32 u32_ITEM_VANISH1;
+extern u32 u32_ITEM_VANISH2;
+extern u32 U32_RBBG_HOOK_PT1;
+extern u32 U32_RBBG_HOOK_PT2;
 extern u32 RKNetController_Search1;
 extern u32 RKNetController_Search2;
 extern u32 RKNetController_Search3;
@@ -22,8 +31,9 @@ public:
         kartRestrictMode = static_cast<KartRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_KARTSELECT));
         charRestrictMode = static_cast<CharacterRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_CHARSELECT));
         hostMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
+        brakeDriftMode = static_cast<BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_BRAKEDRIFT));
 
-        u8 ret = kartRestrictMode + (charRestrictMode << 2) + (hostMode << 4);
+        u8 ret = kartRestrictMode + (charRestrictMode << 2) + (hostMode << 4) + (brakeDriftMode << 6);
 
         return ret;
     }
@@ -32,6 +42,7 @@ public:
         kartRestrictMode = static_cast<KartRestriction>(msg & 0b11);
         charRestrictMode = static_cast<CharacterRestriction>((msg & 0b1100) >> 2);
         hostMode = static_cast<Gamemode>((msg & 0b110000) >> 4);
+        brakeDriftMode = static_cast<BrakeDrift>((msg & 0b11000000) >> 6);
     }
 
     enum ExtraSettingType{
@@ -51,7 +62,7 @@ public:
         SETTINGRR2_RADIO_CTMUSIC = 0,
         SETTINGRR2_RADIO_TIMES = 1,
         SETTINGRR2_RADIO_BRAKEDRIFT = 2,
-        SETTINGRR2_SCROLLER_WORLDWIDE = 0 + 6
+        SETTINGRR2_RADIO_WORLDWIDE = 3
     };
 
     enum Transmission{
@@ -78,7 +89,8 @@ public:
 
     enum BrakeDrift{
         BRAKEDRIFT_DISABLED,
-        BRAKEDRIFT_ENABLED
+        BRAKEDRIFT_ENABLED,
+        BRAKEDRIFT_DEFAULT
     };
 
     enum Gamemode{
@@ -112,6 +124,7 @@ public:
 
     enum Worldwide{
         WORLDWIDE_DEFAULT,
+        WORLDWIDE_ONLINETT,
         WORLDWIDE_200,
         WORLDWIDE_REGULAR
     };
@@ -169,6 +182,7 @@ public:
     CharacterRestriction charRestrictMode;
     WeightClass weight;
     Gamemode hostMode;
+    BrakeDrift brakeDriftMode;
     Worldwide regionMode;
 
     u32 noRaceProgressionTimer[4];
@@ -180,14 +194,8 @@ public:
     static WeightClass GetWeightClass(CharacterId);
     static CharacterRestriction GetCharacterRestriction();
     static Gamemode GetGameMode();
+    static BrakeDrift GetBrakeDrift();
     static Worldwide GetRegionMode();
-
-    static inline void CacheInvalidateAddress(register u32 address) {
-        asm(dcbst 0, address;);
-        asm(sync;);
-        asm(icbi 0, address;);
-        asm(isync;);
-    }
     
     void AfterInit() override;
 };

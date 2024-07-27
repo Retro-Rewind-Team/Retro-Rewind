@@ -11,12 +11,6 @@
 
 namespace Pulsar {
 namespace Network {
-//No disconnect for being idle (Bully)
-kmWrite32(0x80521408, 0x38000000);
-kmWrite32(0x8053EF6C, 0x38000000);
-kmWrite32(0x8053F0B4, 0x38000000);
-kmWrite32(0x8053F124, 0x38000000);
-
 //Overwrites CC rules -> 10% 100, 65% 150, 25% mirror and/or in frooms, overwritten by host setting
 static void DecideCC(CustomSELECTHandler& handler) {
     if(CupsConfig::IsRegsSituation()) reinterpret_cast<RKNet::SELECTHandler&>(handler).DecideEngineClass();

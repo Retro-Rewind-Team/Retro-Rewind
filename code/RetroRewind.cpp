@@ -70,6 +70,15 @@ bool System::Is500cc() {
     return KART_DEFAULTSELECTION;
     }
 
+    System::BrakeDrift System::GetBrakeDrift(){
+    const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
+    const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
+    if (isFroom){
+        return GetsInstance()->brakeDriftMode;
+    }
+    return BRAKEDRIFT_DEFAULT;
+    }
+
     System::Gamemode System::GetGameMode(){
         const bool isRegs = Pulsar::CupsConfig::IsRegsSituation();
         const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
@@ -144,7 +153,11 @@ kmWrite32(0x80257F44, 0x30);
 
 //Online codes
 //Instant Voting Roulette Decide / Skip Voting [Ro]
-kmWrite32(0x80643BC4, 0x4800011C);
+kmWrite32(0x80643BC4, 0x60000000);
+kmWrite32(0x80643C2C, 0x60000000);
+
+//No Disconnect on Countdown [_tZ]
+kmWrite32(0x80655578, 0x60000000);
 
 //Change VR Limit [XeR]
 kmWrite16(0x8052D286, 0x00007530);
@@ -307,23 +320,32 @@ kmWrite32(0x805A35BC, 0x38600000);
 kmWrite16(0x80745AB0, 0x00004800);
 kmWrite32(0x808CB70A, 0x00000000);
 
-//TT Start Position
-kmWrite32(0x80536304, 0x38000002);
+//Mii Outfit C Anti-Crash
+kmWrite8(0x8088C325, 0x00000062);
+kmWrite8(0x8088C331, 0x00000062);
+kmWrite8(0x8088C36D, 0x00000062);
+kmWrite8(0x8088C379, 0x00000062);
+kmWrite8(0x8088C3B5, 0x00000062);
+kmWrite8(0x8088C3C1, 0x00000062);
 
-//Start with Triple Shrooms
-kmWrite32(0x807997D8, 0x38000001);
-
-//No Kart/Bike Collision
-kmWrite32(0x8056F874, 0x48000008);
-
-//No Item Boxes
-kmWrite32(0x8082A4DC, 0x48000010);
-
-//Disable Slip Stream
-kmWrite32(0x80587000, 0x2C030001);
-
-//Item Vanish
-kmWrite32(0x8079F744, 0x2C00000A);
-kmWrite32(0x8079F748, 0xFD810040);
+////Online TT Codes
+////TT Start Position
+//kmWrite32(0x80536304, 0x38000002);
+//
+////Start with Triple Shrooms
+//kmWrite32(0x807997D8, 0x38000001);
+//
+////No Kart/Bike Collision
+//kmWrite32(0x8056F874, 0x48000008);
+//
+////No Item Boxes
+//kmWrite32(0x8082A4DC, 0x48000010);
+//
+////Disable Slip Stream
+//kmWrite32(0x80587000, 0x2C030001);
+//
+////Item Vanish
+//kmWrite32(0x8079F744, 0x2C00000A);
+//kmWrite32(0x8079F748, 0xFD810040);
 
 } // namespace RetroRewind
