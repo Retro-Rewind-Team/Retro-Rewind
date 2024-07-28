@@ -13,19 +13,19 @@ if "%1" equ "-d" SET "cwDWARF=-g"
 :: Destination (change as necessary)
 SET "SOURCE=RetroRewind6"
 SET "RIIVO=%appdata%\Dolphin Emulator\Load\Riivolution\RetroRewind6"
-SET "ENGINE=..\Common\KamekInclude"
+SET "ENGINE=..\Pulsar\KamekInclude"
 echo %ENGINE%
 
 
 :: CPP compilation settings
-SET CC="../Common/cw/mwcceppc.exe"
-SET CFLAGS=-I- -i "../Common/KamekInclude" -i "../Common/GameSource" -i "../Common/GameSource/game" -i "../Common/GameSource/core" -i "../Common/PulsarEngine" -i "../Common" -i code^
+SET CC="../Pulsar/cw/mwcceppc.exe"
+SET CFLAGS=-I- -i "../Pulsar/KamekInclude" -i "../Pulsar/GameSource" -i "../Pulsar/GameSource/game" -i "../Pulsar/GameSource/core" -i "../Pulsar/PulsarEngine" -i "../Pulsar" -i code^
   -opt all -inline auto -enum int -proc gekko -fp hard -sdata 0 -sdata2 0 -maxerrors 1 -func_align 4 %cwDWARF%
 SET DEFINE=
 
 :: CPP Sources
 SET CPPFILES=
-for /R "../Common/PulsarEngine" %%f in (*.cpp) do SET "CPPFILES=%%f !CPPFILES!"
+for /R "../Pulsar/PulsarEngine" %%f in (*.cpp) do SET "CPPFILES=%%f !CPPFILES!"
 for /R code %%f in (*.cpp) do SET "CPPFILES=%%f !CPPFILES!"
 
 :: Compile CPP
@@ -40,7 +40,7 @@ FOR %%H IN (%CPPFILES%) DO (
 
 :: Link
 echo Linking... %time%
-"../Common/KamekLinker/kamek" "build/kamek.o" %OBJECTS% %debug% -dynamic -externals="../Common/GameSource/symbols.txt" -versions="../Common/GameSource/versions.txt" -output-combined=build\Code.pul
+"../Pulsar/KamekLinker/kamek" "build/kamek.o" %OBJECTS% %debug% -dynamic -externals="../Pulsar/GameSource/symbols.txt" -versions="../Pulsar/GameSource/versions.txt" -output-combined=build\Code.pul
 
 if %ErrorLevel% equ 0 (
     xcopy /Y build\*.pul "%RIIVO%\Binaries" >nul

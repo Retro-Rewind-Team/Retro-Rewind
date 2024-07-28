@@ -28,21 +28,21 @@ public:
     static bool Is500cc();
 
     u8 SetPackROOMMsg() override {
+        brakeDriftMode = static_cast<ForceBrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_FORCEBRAKE));
+        tcMode = static_cast<TC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_TC));
         kartRestrictMode = static_cast<KartRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_KARTSELECT));
         charRestrictMode = static_cast<CharacterRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_CHARSELECT));
-        hostMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
-        brakeDriftMode = static_cast<BrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_BRAKEDRIFT));
 
-        u8 ret = kartRestrictMode + (charRestrictMode << 2) + (hostMode << 4) + (brakeDriftMode << 6);
+        u8 ret = brakeDriftMode + (tcMode << 2) + (kartRestrictMode << 4) + (charRestrictMode << 6);
 
         return ret;
     }
 
     void ParsePackROOMMsg(u8 msg) override {
-        kartRestrictMode = static_cast<KartRestriction>(msg & 0b11);
-        charRestrictMode = static_cast<CharacterRestriction>((msg & 0b1100) >> 2);
-        hostMode = static_cast<Gamemode>((msg & 0b110000) >> 4);
-        brakeDriftMode = static_cast<BrakeDrift>((msg & 0b11000000) >> 6);
+        brakeDriftMode = static_cast<ForceBrakeDrift>(msg & 0b11);
+        tcMode = static_cast<TC>((msg & 0b1100) >> 2);
+        kartRestrictMode = static_cast<KartRestriction>((msg & 0b110000) >> 4);
+        charRestrictMode = static_cast<CharacterRestriction>((msg & 0b11000000) >> 6);
     }
 
     enum ExtraSettingType{
@@ -62,7 +62,8 @@ public:
         SETTINGRR2_RADIO_CTMUSIC = 0,
         SETTINGRR2_RADIO_TIMES = 1,
         SETTINGRR2_RADIO_BRAKEDRIFT = 2,
-        SETTINGRR2_RADIO_WORLDWIDE = 3
+        SETTINGRR2_RADIO_TC = 3,
+        SETTINGRR2_RADIO_FORCEBRAKE = 4
     };
 
     enum Transmission{
@@ -89,8 +90,12 @@ public:
 
     enum BrakeDrift{
         BRAKEDRIFT_DISABLED,
-        BRAKEDRIFT_ENABLED,
-        BRAKEDRIFT_DEFAULT
+        BRAKEDRIFT_ENABLED
+    };
+
+    enum ForceBrakeDrift{
+        FORCEBRAKEDRIFT_DISABLED,
+        FORCEBRAKEDRIFT_ENABLED
     };
 
     enum Gamemode{
@@ -122,11 +127,9 @@ public:
         ALLWEIGHT
     };
 
-    enum Worldwide{
-        WORLDWIDE_DEFAULT,
-        WORLDWIDE_ONLINETT,
-        WORLDWIDE_200,
-        WORLDWIDE_REGULAR
+    enum TC{
+        TC_MEGA,
+        TC_DEFAULT
     };
 
     enum CharButtonId{
@@ -182,8 +185,8 @@ public:
     CharacterRestriction charRestrictMode;
     WeightClass weight;
     Gamemode hostMode;
-    BrakeDrift brakeDriftMode;
-    Worldwide regionMode;
+    ForceBrakeDrift brakeDriftMode;
+    TC tcMode;
 
     u32 noRaceProgressionTimer[4];
     float lastRaceCompletion[4];
@@ -194,8 +197,8 @@ public:
     static WeightClass GetWeightClass(CharacterId);
     static CharacterRestriction GetCharacterRestriction();
     static Gamemode GetGameMode();
-    static BrakeDrift GetBrakeDrift();
-    static Worldwide GetRegionMode();
+    static ForceBrakeDrift GetBrakeDrift();
+    static TC GetTCMode();
     
     void AfterInit() override;
 };

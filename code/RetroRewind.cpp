@@ -17,7 +17,7 @@ void System::AfterInit(){
 
     Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR]=4;
     Pulsar::UI::SettingsPanel::scrollerCount[SETTINGSTYPE_RR]=1;
-    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=3;
+    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=5;
 
     //Transmission
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR][0]=4;
@@ -43,8 +43,11 @@ void System::AfterInit(){
     //Brake Drifting
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][2]=2;
 
-    //Worldwide Option [Unused]
-    Pulsar::UI::SettingsPanel::optionsPerPagePerScroller[SETTINGSTYPE_RR2][0]=2;
+    //Friend Room TC Type
+    Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][3]=2;
+
+    //Force No Brake Drift
+    Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][4]=2;
 }
 
 
@@ -70,30 +73,47 @@ bool System::Is500cc() {
     return KART_DEFAULTSELECTION;
     }
 
-    System::BrakeDrift System::GetBrakeDrift(){
+    System::ForceBrakeDrift System::GetBrakeDrift(){
     const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
     const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
     if (isFroom){
         return GetsInstance()->brakeDriftMode;
     }
-    return BRAKEDRIFT_DEFAULT;
+    return FORCEBRAKEDRIFT_DISABLED;
     }
 
     System::Gamemode System::GetGameMode(){
+        const bool isRegs = Pulsar::CupsConfig::IsRegsSituation();
+        const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
+        const bool isFroom = gameMode == MODE_VS_RACE || gameMode == MODE_BATTLE;
+        const bool isRegional = gameMode == MODE_PUBLIC_VS || gameMode == MODE_PUBLIC_BATTLE;
+        if (!isRegs){
+            if (isFroom){
+                return GAMEMODE_DEFAULT;
+            }
+            else if (isRegional){
+                return GAMEMODE_DEFAULT;
+            }
+            return GAMEMODE_DEFAULT;
+        }
+        return GAMEMODE_NONE;
+    }
+
+    System::TC System::GetTCMode(){
         const bool isRegs = Pulsar::CupsConfig::IsRegsSituation();
         const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
         const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
         const bool isRegional = gameMode == MODE_PUBLIC_VS || gameMode == MODE_PUBLIC_BATTLE;
         if (!isRegs){
             if (isFroom){
-                return GetsInstance()->hostMode;
+                return GetsInstance()->tcMode;
             }
             else if (isRegional){
-                return GAMEMODE_DEFAULT;
+                return TC_MEGA;
             }
-            return static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
+            return static_cast<TC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_TC));
         }
-        return GAMEMODE_NONE;
+        return TC_MEGA;
     }
 
 System::WeightClass System::GetWeightClass(const CharacterId id){
@@ -152,7 +172,7 @@ kmWrite32(0x80257B24, 0x30);
 kmWrite32(0x80257F44, 0x30);
 
 //Online codes
-//Instant Voting Roulette Decide / Skip Voting [Ro]
+//Instant Voting Roulette Decide [Ro]
 kmWrite32(0x80643BC4, 0x60000000);
 kmWrite32(0x80643C2C, 0x60000000);
 

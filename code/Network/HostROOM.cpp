@@ -59,8 +59,8 @@ void SetAllToSendPackets(RKNet::ROOMHandler& roomHandler, u32 packetArg) {
         const u8 disableMiiHeads = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_ALLOW_MIIHEADS);
         packetReg.packet.message |= gpParam << 3; //uses bits 3-5
         packetReg.packet.message |= disableMiiHeads << 6; //uses bit 6
-        ConvertROOMPacketToData(packetReg.packet.message >> 2); //5 right now (2-6) + 3 reserved (7-9)
-        packetReg.packet.message |= (System::sInstance->SetPackROOMMsg() << 0xA & 0b1111110000000000); //6 bits for packs (10-15)
+        ConvertROOMPacketToData(packetReg.packet.message >> 2); //5 right now (2-6)
+        packetReg.packet.message |= (System::sInstance->SetPackROOMMsg() << 0x6 & 0b1111111111000000); //10 bits for packs (7-16)
     }
     for(int i = 0; i < 12; ++i) if(i != localAid) roomHandler.toSendPackets[i] = packetReg.packet;
 }
@@ -77,8 +77,8 @@ RKNet::ROOMPacket GetParamFromPacket(u32 packetArg, u8 aidOfSender) {
         //Seeky's code to prevent guests from start the GP
         if(controller->subs[controller->currentSub].hostAid != aidOfSender) packetReg.packet.messageType = 0;
         else {
-            ConvertROOMPacketToData((packetReg.packet.message & 0b0000001111111100) >> 2);
-            System::sInstance->ParsePackROOMMsg(packetReg.packet.message >> 0xA);
+            ConvertROOMPacketToData((packetReg.packet.message & 0b0000000000111100) >> 2);
+            System::sInstance->ParsePackROOMMsg(packetReg.packet.message >> 0x6);
         }
         packetReg.packet.message &= 0x3;
         Page* topPage = SectionMgr::sInstance->curSection->GetTopLayerPage();
