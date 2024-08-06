@@ -85,7 +85,7 @@ bool System::Is500cc() {
     System::Gamemode System::GetGameMode(){
         const bool isRegs = Pulsar::CupsConfig::IsRegsSituation();
         const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
-        const bool isFroom = gameMode == MODE_VS_RACE || gameMode == MODE_BATTLE;
+        const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
         const bool isRegional = gameMode == MODE_PUBLIC_VS || gameMode == MODE_PUBLIC_BATTLE;
         if (!isRegs){
             if (isFroom){
@@ -94,7 +94,7 @@ bool System::Is500cc() {
             else if (isRegional){
                 return GAMEMODE_DEFAULT;
             }
-            return GAMEMODE_DEFAULT;
+            return static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
         }
         return GAMEMODE_NONE;
     }
@@ -172,6 +172,9 @@ kmWrite32(0x80257B24, 0x30);
 kmWrite32(0x80257F44, 0x30);
 
 //Online codes
+//High Data Rate [MrBean35000vr + Chadderz]
+kmWrite32(0x80657EA8, 0x28040007);
+
 //Instant Voting Roulette Decide [Ro]
 kmWrite32(0x80643BC4, 0x60000000);
 kmWrite32(0x80643C2C, 0x60000000);
@@ -195,9 +198,6 @@ kmWrite16(0x808565C2, 0x00007530);
 kmWrite16(0x8085C322, 0x00007530);
 kmWrite16(0x8085C32A, 0x00007530);
 
-//Don't Lose VR While Disconnecting [Bully]
-kmWrite32(0x80856560, 0x60000000);
-
 //Mushroom Glitch Fix [Leseratte]
 kmWrite8(0x807BA077, 0x00000000);
 
@@ -216,6 +216,22 @@ kmWrite16(0x8064BCC2, 0x000010D7);
 //Allow WFC on Wiimmfi Patched ISOs
 kmWrite32(0x800EE3A0, 0x2C030000);
 kmWrite32(0x800ECAAC, 0x7C7E1B78);
+
+//Ultra Uncut [MrBean35000vr + Chadderz]
+asmFunc GetUltraUncut() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  lbz       r3, 0x1C(r29);
+  cmplwi    r3, 0x1;
+  ble+      loc_0x10;
+  mr        r0, r30;
+
+loc_0x10:
+  cmplw     r30, r0;
+    )
+}
+kmCall(0x8053511C, GetUltraUncut);
 
 //VR System Changes [MrBean35000vr]
 //Multiply VR difference by 2 [Winner]
@@ -341,12 +357,84 @@ kmWrite16(0x80745AB0, 0x00004800);
 kmWrite32(0x808CB70A, 0x00000000);
 
 //Mii Outfit C Anti-Crash
-kmWrite8(0x8088C325, 0x00000062);
-kmWrite8(0x8088C331, 0x00000062);
-kmWrite8(0x8088C36D, 0x00000062);
-kmWrite8(0x8088C379, 0x00000062);
-kmWrite8(0x8088C3B5, 0x00000062);
-kmWrite8(0x8088C3C1, 0x00000062);
+kmWrite8(0x8089089D, 0x00000062);
+kmWrite8(0x808908A9, 0x00000062);
+kmWrite8(0x808908E5, 0x00000062);
+kmWrite8(0x808908F1, 0x00000062);
+kmWrite8(0x8089092D, 0x00000062);
+kmWrite8(0x80890939, 0x00000062);
+
+//Anti Online Item Delimiters [Ro]
+asmFunc GetItemDelimiterShock() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  mflr r12;
+  cmpwi     r7, 0x1;
+  bne+ validLightning;
+  addi r12, r12, 0x12C;
+  mtlr r12;
+  blr;
+validLightning:
+  mulli r29, r3, 0xF0;
+  blr;
+    )
+}
+kmCall(0x807B7C34, GetItemDelimiterShock);
+
+asmFunc GetItemDelimiterBlooper() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  mflr r12;
+  cmpwi     r7, 0x1;
+  bne+ validBlooper;
+  addi r12, r12, 0x1A8;
+  mtlr r12;
+  blr;
+validBlooper:
+  addi r11, r1, 0x50;
+  blr;
+    )
+}
+kmCall(0x807A81C0, GetItemDelimiterBlooper);
+
+asmFunc GetItemDelimiterPOW() {
+    ASM(
+        nofralloc;
+loc_0x0:
+mflr r12;
+  cmpwi     r7, 0x1;
+  bne+ validPOW;
+  addi r12, r12, 0x48;
+  mtlr r12;
+  blr;
+validPOW:
+  mr r30, r3;
+  blr;
+    )
+}
+kmCall(0x807B1B44, GetItemDelimiterPOW);
+
+//Anti Mii Crash
+asmFunc AntiWiper() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  cmpwi r4, 0x6;
+  ble validMii;
+  lhz r12, 0xE(r30);
+  cmpwi r12, 0x0;
+  bne validMii;
+  li r31, 0x0;
+  li r4, 0x6;
+validMii:
+  mr r29, r4;
+  blr;
+    )
+}
+kmCall(0x800CB6C0, AntiWiper);
+kmWrite32(0x80526660, 0x38000001); //Credits to Ro for the last line.
 
 ////Online TT Codes
 ////TT Start Position

@@ -4,15 +4,15 @@
 #include <MarioKartWii/GlobalFunctions.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
 
-extern u32 u32_TT_START_POSITION;
-extern u32 u32_TRIPLE_SHROOMS;
-extern u32 u32_NO_COLLISION;
-extern u32 u32_NO_BOXES;
-extern u32 u32_NO_SLIP;
-extern u32 u32_ITEM_VANISH1;
-extern u32 u32_ITEM_VANISH2;
-extern u32 U32_RBBG_HOOK_PT1;
-extern u32 U32_RBBG_HOOK_PT2;
+extern u32 TT_START_POSITION;
+extern u32 TRIPLE_SHROOMS;
+extern u32 NO_COLLISION;
+extern u32 NO_BOXES;
+extern u32 NO_SLIP;
+extern u32 ITEM_VANISH1;
+extern u32 ITEM_VANISH2;
+extern u32 RBBG_HOOK_PT1;
+extern u32 RBBG_HOOK_PT2;
 extern u32 RKNetController_Search1;
 extern u32 RKNetController_Search2;
 extern u32 RKNetController_Search3;
@@ -32,8 +32,9 @@ public:
         tcMode = static_cast<TC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_TC));
         kartRestrictMode = static_cast<KartRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_KARTSELECT));
         charRestrictMode = static_cast<CharacterRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_CHARSELECT));
+        gameMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
 
-        u8 ret = brakeDriftMode + (tcMode << 2) + (kartRestrictMode << 4) + (charRestrictMode << 6);
+        u8 ret = brakeDriftMode + (tcMode << 2) + (kartRestrictMode << 4) + (charRestrictMode << 6) + (gameMode << 8);
 
         return ret;
     }
@@ -43,6 +44,7 @@ public:
         tcMode = static_cast<TC>((msg & 0b1100) >> 2);
         kartRestrictMode = static_cast<KartRestriction>((msg & 0b110000) >> 4);
         charRestrictMode = static_cast<CharacterRestriction>((msg & 0b11000000) >> 6);
+        gameMode = static_cast<Gamemode>((msg & 0b1100000000) >> 8);
     }
 
     enum ExtraSettingType{
@@ -182,9 +184,9 @@ public:
     };
 
     KartRestriction kartRestrictMode;
+    Gamemode gameMode;
     CharacterRestriction charRestrictMode;
     WeightClass weight;
-    Gamemode hostMode;
     ForceBrakeDrift brakeDriftMode;
     TC tcMode;
 
