@@ -159,6 +159,20 @@ kmWrite32(0x8084FEF0, 0x48000044);
 kmWrite32(0x80860A90, 0x38600000);
 
 //Visual codes
+//HUD Color [Spaghetti Noppers]
+kmWrite32(0x80895CC0, 0x00FF00FD);
+kmWrite32(0x80895CC4, 0x00FF00FD);
+kmWrite32(0x80895CC8, 0x00FF00FD);
+kmWrite32(0x80895CCC, 0x00FF00FD);
+kmWrite32(0x80895CD0, 0x00FF00FD);
+kmWrite32(0x80895CD4, 0x00FF0046);
+kmWrite32(0x80895CD8, 0x00FF00FF);
+kmWrite32(0x80895CDC, 0x00FF00FF);
+kmWrite32(0x80895CE0, 0x00FF00FF);
+kmWrite32(0x80895CE4, 0x00FF00FF);
+kmWrite32(0x80895CE8, 0x00FF00FF);
+kmWrite32(0x80895CEC, 0x00FF0046);
+
 //No Sun Filter [Anarion]
 kmWrite8(0x8025739F, 0x00);
 kmWrite8(0x80256F7F, 0x00);
@@ -172,9 +186,6 @@ kmWrite32(0x80257B24, 0x30);
 kmWrite32(0x80257F44, 0x30);
 
 //Online codes
-//High Data Rate [MrBean35000vr + Chadderz]
-kmWrite32(0x80657EA8, 0x28040007);
-
 //Instant Voting Roulette Decide [Ro]
 kmWrite32(0x80643BC4, 0x60000000);
 kmWrite32(0x80643C2C, 0x60000000);
@@ -197,6 +208,9 @@ kmWrite16(0x808565BA, 0x00007530);
 kmWrite16(0x808565C2, 0x00007530);
 kmWrite16(0x8085C322, 0x00007530);
 kmWrite16(0x8085C32A, 0x00007530);
+
+//Don't Lose VR While Disconnecting [Bully]
+kmWrite32(0x80856560, 0x60000000);
 
 //Mushroom Glitch Fix [Leseratte]
 kmWrite8(0x807BA077, 0x00000000);
@@ -435,6 +449,35 @@ validMii:
 }
 kmCall(0x800CB6C0, AntiWiper);
 kmWrite32(0x80526660, 0x38000001); //Credits to Ro for the last line.
+
+//Anti Item Collission Crash [Marioiscool246]
+extern "C" void __ptmf_test(void*);
+asmFunc AntiItemColCrash() {
+    ASM(
+        nofralloc;
+
+    loc_0x0:
+        stwu r1, -0xC(r1);
+        stw r31, 8(r1);
+        mflr r31;
+
+        addi r3, r29, 0x174;
+        bl __ptmf_test;
+
+        cmpwi r3, 0;
+        bne end;
+
+        addi r31, r31, 0x14;
+
+    end:
+        mtlr r31;
+        lwz r31, 8(r1);
+        addi r1, r1, 0xC;
+        mr r3, r29;
+        blr;
+    )
+}
+kmCall(0x807A1A54, AntiItemColCrash);
 
 ////Online TT Codes
 ////TT Start Position

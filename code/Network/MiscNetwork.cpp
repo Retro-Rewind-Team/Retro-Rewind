@@ -18,7 +18,7 @@ static void DecideCC(CustomSELECTHandler& handler) {
         const u8 ccSetting = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC);
         RKNet::Controller* controller = RKNet::Controller::sInstance;
         const RKNet::RoomType roomType = controller->roomType;
-        u8 ccClass = 1; //1 100, 2 150, 3 mirror
+        u8 ccClass = 2; //1 100, 2 150, 3 mirror
         if(roomType == RKNet::ROOMTYPE_VS_REGIONAL
             || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL) {
             Random random;
@@ -28,6 +28,7 @@ static void DecideCC(CustomSELECTHandler& handler) {
             if(result < 100 - (prob100 + prob150)) ccClass = 3;
             else if(result < 100 - prob100) ccClass = 2;
         }
+        else if(ccSetting == HOSTSETTING_CC_100) ccClass = 1;
         else if(ccSetting == HOSTSETTING_CC_150) ccClass = 2;
         else if(ccSetting == HOSTSETTING_CC_MIRROR) ccClass = 3;
         handler.toSendPacket.engineClass = ccClass;
