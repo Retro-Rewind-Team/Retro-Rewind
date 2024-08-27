@@ -11,6 +11,7 @@ extern u32 NO_BOXES;
 extern u32 NO_SLIP;
 extern u32 ITEM_VANISH1;
 extern u32 ITEM_VANISH2;
+extern u32 FAST_FROOM;
 extern u32 RBBG_HOOK_PT1;
 extern u32 RBBG_HOOK_PT2;
 extern u32 RKNetController_Search1;

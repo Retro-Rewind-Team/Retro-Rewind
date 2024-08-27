@@ -115,7 +115,7 @@ s32 HandleResponse(u8 *block)
     }
         
     // Disable unnecessary patches
-    u32 patchMask = WWFC_PATCH_LEVEL_CRITICAL | WWFC_PATCH_LEVEL_BUGFIX |
+    /* u32 patchMask = WWFC_PATCH_LEVEL_CRITICAL | WWFC_PATCH_LEVEL_BUGFIX |
                     WWFC_PATCH_LEVEL_SUPPORT;
     for (wwfc_patch *patch = reinterpret_cast<wwfc_patch*>(
                         block + payload->info.patch_list_offset
@@ -131,7 +131,7 @@ s32 HandleResponse(u8 *block)
 
         // Otherwise disable the patch
         patch->level |= WWFC_PATCH_LEVEL_DISABLED;
-    }
+    } */
         
     s32 (*entryFunction)(wwfc_payload *) =
         reinterpret_cast<s32 (*)(wwfc_payload *)>(

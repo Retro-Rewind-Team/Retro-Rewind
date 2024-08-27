@@ -498,5 +498,32 @@ kmCall(0x807A1A54, AntiItemColCrash);
 ////Item Vanish
 //kmWrite32(0x8079F744, 0x2C00000A);
 //kmWrite32(0x8079F748, 0xFD810040);
-
+//
+////TT Cycles
+//kmWrite32(0x80554b68, 0x38000002);
+//asmFunc GetTTCycle1() {
+//    ASM(
+//        nofralloc;
+//loc_0x0:
+//  lis       r11, 0x8150;
+//  li        r0, 0x1;
+//  stb       r0, 0x164E(r11);
+//  lhz       r0, 0x6C(r29);
+//  blr;
+//    )
+//}
+//kmCall(0x805A7414, GetTTCycle1);
+//
+//asmFunc GetTTCycle2() {
+//    ASM(
+//        nofralloc;
+//loc_0x0:
+//  lis       r11, 0x8150;
+//  li        r0, 0;
+//  stb       r0, 0x164E(r11);
+//  li        r0, 0x1;
+//  blr;
+//    )
+//}
+//kmCall(0x805334B0, GetTTCycle2);
 } // namespace RetroRewind
