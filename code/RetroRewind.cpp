@@ -479,6 +479,25 @@ asmFunc AntiItemColCrash() {
 }
 kmCall(0x807A1A54, AntiItemColCrash);
 
+//Force 30 FPS [Vabold]
+asmFunc Force30Frames() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        lbz r0, 0x25(r3);
+        lis r12, 0x8000;
+        lbz r12, 0x1200(r12);
+        cmpwi r12, 0;
+        beq end;
+        li r0, 2;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x8055422C, Force30Frames);
+kmWrite32(0x80554248, 0x7D836378);
+
 ////Online TT Codes
 ////TT Start Position
 //kmWrite32(0x80536304, 0x38000002);
