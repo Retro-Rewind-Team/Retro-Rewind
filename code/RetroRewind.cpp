@@ -479,51 +479,94 @@ asmFunc AntiItemColCrash() {
 }
 kmCall(0x807A1A54, AntiItemColCrash);
 
-////Online TT Codes
-////TT Start Position
-//kmWrite32(0x80536304, 0x38000002);
-//
-////Start with Triple Shrooms
-//kmWrite32(0x807997D8, 0x38000001);
-//
-////No Kart/Bike Collision
-//kmWrite32(0x8056F874, 0x48000008);
-//
-////No Item Boxes
-//kmWrite32(0x8082A4DC, 0x48000010);
-//
-////Disable Slip Stream
-//kmWrite32(0x80587000, 0x2C030001);
-//
-////Item Vanish
-//kmWrite32(0x8079F744, 0x2C00000A);
-//kmWrite32(0x8079F748, 0xFD810040);
-//
-////TT Cycles
-//kmWrite32(0x80554b68, 0x38000002);
-//asmFunc GetTTCycle1() {
-//    ASM(
-//        nofralloc;
-//loc_0x0:
-//  lis       r11, 0x8150;
-//  li        r0, 0x1;
-//  stb       r0, 0x164E(r11);
-//  lhz       r0, 0x6C(r29);
-//  blr;
-//    )
-//}
-//kmCall(0x805A7414, GetTTCycle1);
-//
-//asmFunc GetTTCycle2() {
-//    ASM(
-//        nofralloc;
-//loc_0x0:
-//  lis       r11, 0x8150;
-//  li        r0, 0;
-//  stb       r0, 0x164E(r11);
-//  li        r0, 0x1;
-//  blr;
-//    )
-//}
-//kmCall(0x805334B0, GetTTCycle2);
+//Force 30 FPS [Vabold]
+asmFunc Force30Frames() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        lbz r0, 0x25(r3);
+        lis r12, 0x8000;
+        lbz r12, 0x1200(r12);
+        cmpwi r12, 0;
+        beq end;
+        li r0, 2;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x8055422C, Force30Frames);
+kmWrite32(0x80554248, 0x7D836378);
+
+/*
+//Online TT Codes [Melg]
+//TT Start Position
+kmWrite32(0x80536304, 0x38000002);
+
+//Start with Triple Shrooms
+kmWrite32(0x807997D8, 0x38000001);
+
+//No Kart/Bike Collision
+kmWrite32(0x8056F874, 0x48000008);
+
+//No Item Boxes
+kmWrite32(0x8082A4DC, 0x48000010);
+
+//Disable Slip Stream
+kmWrite32(0x80587000, 0x2C030001);
+
+//Item Vanish
+kmWrite32(0x8079F744, 0x2C00000A);
+kmWrite32(0x8079F748, 0xFD810040);
+
+//TT Cycles
+kmWrite32(0x80554b68, 0x38000002);
+asmFunc GetTTCycle1() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  lis       r11, 0x8150;
+  li        r0, 0x1;
+  stb       r0, 0x164E(r11);
+  lhz       r0, 0x6C(r29);
+  blr;
+    )
+}
+kmCall(0x805A7414, GetTTCycle1);
+
+asmFunc GetTTCycle2() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  lis       r11, 0x8150;
+  li        r0, 0;
+  stb       r0, 0x164E(r11);
+  li        r0, 0x1;
+  blr;
+    )
+}
+kmCall(0x805334B0, GetTTCycle2);
+
+extern "C" void Update__10ObjectsMgrFv(void*);
+asmFunc GetTTCycle3() {
+    ASM(
+        nofralloc;
+loc_0x0:
+  lis       r12, 0x8150;
+  lbz       r12, 0x164E(r12);
+  cmpwi     r12, 0;
+  beq+      loc_0x14;
+  blr;    
+
+loc_0x14:
+  stwu      r1, -0x80(r1);
+  lis       r12, Update__10ObjectsMgrFv@ha;
+  addi      r12, r12, Update__10ObjectsMgrFv@l;
+  addi      r12, r12, 0x4;
+  mtctr     r12;
+  bctr;
+    )
+}
+kmBranch(0x8082A8F4, GetTTCycle3);
+*/
 } // namespace RetroRewind
