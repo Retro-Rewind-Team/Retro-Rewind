@@ -4,18 +4,15 @@
 namespace RetroRewind {
 void *GetCustomKartParam(ArchiveRoot *archive, ArchiveSource type, const char *name, u32 *length){
     const GameMode gameMode = RaceData::sInstance->racesScenario.settings.gamemode;
-    if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_INSIDEALL
-     && !Pulsar::CupsConfig::IsRegsSituation())
+    if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_INSIDEALL)
     {
         name="kartParamAll.bin";
     }
-    else if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_INSIDEBIKE
-     && !Pulsar::CupsConfig::IsRegsSituation())
+    else if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_INSIDEBIKE)
     {
         name="kartParamBike.bin";
     }
-    else if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_OUTSIDE
-     && !Pulsar::CupsConfig::IsRegsSituation())
+    else if (static_cast<RetroRewind::System::Transmission>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), RetroRewind::System::SETTINGRR_RADIO_TRANSMISSION)) == RetroRewind::System::TRANSMISSION_OUTSIDE)
     {
         name="kartParamOut.bin";
     }
@@ -48,10 +45,6 @@ void *GetCustomItemSlot(ArchiveRoot *archive, ArchiveSource type, const char *na
     else if (gameMode == System::GAMEMODE_BLAST)
     {
         name="ItemSlotBlast.bin";
-    }
-    else if (gameMode == System::GAMEMODE_MUSHROOM)
-    {
-        name="ItemSlotMushroom.bin";
     }
     return archive->GetFile(type, name, length);
 

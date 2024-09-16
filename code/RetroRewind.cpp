@@ -17,7 +17,7 @@ void System::AfterInit(){
 
     Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR]=4;
     Pulsar::UI::SettingsPanel::scrollerCount[SETTINGSTYPE_RR]=1;
-    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=5;
+    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=4;
 
     //Transmission
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR][0]=4;
@@ -43,11 +43,8 @@ void System::AfterInit(){
     //Brake Drifting
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][2]=2;
 
-    //Friend Room TC Type
+    //30 FPS
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][3]=2;
-
-    //Force No Brake Drift
-    Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][4]=2;
 }
 
 
@@ -77,7 +74,7 @@ bool System::Is500cc() {
     const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
     const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
     if (isFroom){
-        return GetsInstance()->brakeDriftMode;
+        return FORCEBRAKEDRIFT_DISABLED;
     }
     return FORCEBRAKEDRIFT_DISABLED;
     }
@@ -86,17 +83,25 @@ bool System::Is500cc() {
         const bool isRegs = Pulsar::CupsConfig::IsRegsSituation();
         const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
         const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
-        const bool isRegional = gameMode == MODE_PUBLIC_VS || gameMode == MODE_PUBLIC_BATTLE;
+        const bool isTTs = gameMode == MODE_TIME_TRIAL;
+        const bool isVS = gameMode == MODE_VS_RACE;
+        const bool isRegional = gameMode == MODE_PUBLIC_VS;
         if (!isRegs){
             if (isFroom){
-                return GAMEMODE_DEFAULT;
+                return GetsInstance()->gameMode;
             }
             else if (isRegional){
                 return GAMEMODE_DEFAULT;
             }
-            return static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
+            else if (isTTs){
+                return GAMEMODE_ONLINETT;
+            }
+            else if (isVS){
+                return static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));;
+            }
+            return GAMEMODE_DEFAULT;
         }
-        return GAMEMODE_NONE;
+        return GAMEMODE_ONLINETT;
     }
 
     System::TC System::GetTCMode(){
@@ -106,12 +111,12 @@ bool System::Is500cc() {
         const bool isRegional = gameMode == MODE_PUBLIC_VS || gameMode == MODE_PUBLIC_BATTLE;
         if (!isRegs){
             if (isFroom){
-                return GetsInstance()->tcMode;
+                return TC_MEGA;
             }
             else if (isRegional){
                 return TC_MEGA;
             }
-            return static_cast<TC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_TC));
+            return TC_MEGA;
         }
         return TC_MEGA;
     }
@@ -151,13 +156,6 @@ System::WeightClass System::GetWeightClass(const CharacterId id){
     }
 }
 
-//Battle codes
-//Allow all vehicles in battle
-kmWrite32(0x805DE7B4, 0x38000000);
-kmWrite32(0x80553F98, 0x3880000A);
-kmWrite32(0x8084FEF0, 0x48000044);
-kmWrite32(0x80860A90, 0x38600000);
-
 //Visual codes
 //HUD Color [Spaghetti Noppers]
 kmWrite32(0x80895CC0, 0x00FF00FD);
@@ -186,6 +184,9 @@ kmWrite32(0x80257B24, 0x30);
 kmWrite32(0x80257F44, 0x30);
 
 //Online codes
+//High Data Rate [MrBean35000vr + Chadderz]
+kmWrite32(0x80657EA8, 0x28040007);
+
 //Instant Voting Roulette Decide [Ro]
 kmWrite32(0x80643BC4, 0x60000000);
 kmWrite32(0x80643C2C, 0x60000000);
@@ -214,18 +215,6 @@ kmWrite32(0x80856560, 0x60000000);
 
 //Mushroom Glitch Fix [Leseratte]
 kmWrite8(0x807BA077, 0x00000000);
-
-//Remove WW Button [Chadderz]
-kmWrite16(0x8064B982, 0x00000005);
-kmWrite32(0x8064BA10, 0x60000000);
-kmWrite32(0x8064BA38, 0x60000000);
-kmWrite32(0x8064BA50, 0x60000000);
-kmWrite32(0x8064BA5C, 0x60000000);
-kmWrite16(0x8064BC12, 0x00000001);
-kmWrite16(0x8064BC3E, 0x00000484);
-kmWrite16(0x8064BC4E, 0x000010D7);
-kmWrite16(0x8064BCB6, 0x00000484);
-kmWrite16(0x8064BCC2, 0x000010D7);
 
 //Allow WFC on Wiimmfi Patched ISOs
 kmWrite32(0x800EE3A0, 0x2C030000);
@@ -486,7 +475,7 @@ asmFunc Force30Frames() {
     loc_0x0:
         lbz r0, 0x25(r3);
         lis r12, 0x8000;
-        lbz r12, 0x1200(r12);
+        lbz r12, 0x1204(r12);
         cmpwi r12, 0;
         beq end;
         li r0, 2;
@@ -497,27 +486,6 @@ asmFunc Force30Frames() {
 }
 kmCall(0x8055422C, Force30Frames);
 kmWrite32(0x80554248, 0x7D836378);
-
-/*
-//Online TT Codes [Melg]
-//TT Start Position
-kmWrite32(0x80536304, 0x38000002);
-
-//Start with Triple Shrooms
-kmWrite32(0x807997D8, 0x38000001);
-
-//No Kart/Bike Collision
-kmWrite32(0x8056F874, 0x48000008);
-
-//No Item Boxes
-kmWrite32(0x8082A4DC, 0x48000010);
-
-//Disable Slip Stream
-kmWrite32(0x80587000, 0x2C030001);
-
-//Item Vanish
-kmWrite32(0x8079F744, 0x2C00000A);
-kmWrite32(0x8079F748, 0xFD810040);
 
 //TT Cycles
 kmWrite32(0x80554b68, 0x38000002);
@@ -568,5 +536,133 @@ loc_0x14:
     )
 }
 kmBranch(0x8082A8F4, GetTTCycle3);
-*/
+
+
+//Online TT Codes [Melg]
+asmFunc TTStartPosition() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        li  r0, 0x0;
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi r12, 0;
+        beq end;
+        li  r0, 0x2;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x80536304, TTStartPosition);
+
+asmFunc TripleShrooms() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        li  r0, 0x0;
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi r12, 0;
+        beq end;
+        li  r0, 0x1;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x807997D8, TripleShrooms);
+
+asmFunc NoCollision() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        li r6, 0x0;
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi r12, 0;
+        beq end;
+        li r6, 0x1;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x8056F85C, NoCollision);
+
+asmFunc NoItems() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi r12, 1;
+        beqlr;
+        cmpwi r0, 2;
+        blr;
+    )
+}
+kmCall(0x8082A4D8, NoItems);
+
+asmFunc NoSlipStream() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        cmpwi  r3, 0;
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi r12, 0;
+        beq end;
+        cmpwi  r3, 1;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x80587000, NoSlipStream);
+
+asmFunc ItemVanish() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        lfs f0, 0x0(r31);
+        fcmpo cr0, f1, f0;
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi cr7, r12, 0;
+        beqlr cr7;
+        cmpwi r0, 0xA;
+    end:
+        blr;
+    )
+}
+kmCall(0x8079F748, ItemVanish);
+
+ void TTsOnline() {
+    const System::Gamemode gameMode = System::GetGameMode();
+    OnlineTTHook = 0x00;
+    if (gameMode == System::GAMEMODE_ONLINETT) {
+        OnlineTTHook = 0x00FF0100;
+    }
+    Pulsar::System::CacheInvalidateAddress(OnlineTTHook);
+ }
+static PageLoadHook TTsOnlineHook(TTsOnline);
+
+ void FPSPatch() {
+    FPSPatchHook = 0x00;
+    if (static_cast<RetroRewind::System::FPS>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), RetroRewind::System::SETTIGNRR2_RADIO_FPS)) == RetroRewind::System::FPS_HALF) {
+        FPSPatchHook = 0x00FF0100;
+    }
+    Pulsar::System::CacheInvalidateAddress(FPSPatchHook);
+ }
+static PageLoadHook FPSPatchLmao(FPSPatch);
+
+void CodeCrash() {
+    if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");
+    else if(MainDolCheat == 0x9421FF58) Pulsar::Debug::FatalError("Report this crash to ZPL's Rewind Hideaway.");
+}
+
+static PageLoadHook CRASH_HOOK(CodeCrash);
+
 } // namespace RetroRewind

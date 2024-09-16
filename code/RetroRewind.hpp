@@ -4,24 +4,11 @@
 #include <MarioKartWii/GlobalFunctions.hpp>
 #include <MarioKartWii/System/Identifiers.hpp>
 
-extern u32 TT_START_POSITION;
-extern u32 TRIPLE_SHROOMS;
-extern u32 NO_COLLISION;
-extern u32 NO_BOXES;
-extern u32 NO_SLIP;
-extern u32 ITEM_VANISH1;
-extern u32 ITEM_VANISH2;
-extern u32 FAST_FROOM;
-extern u32 RBBG_HOOK_PT1;
-extern u32 RBBG_HOOK_PT2;
-extern u32 RKNetController_Search1;
-extern u32 RKNetController_Search2;
-extern u32 RKNetController_Search3;
-extern u32 RKNetController_Search4;
-extern u32 RKNetController_Search5;
-extern u32 RKNetController_Search6;
-extern u32 RKNetController_Search7;
-extern u32 RKNetController_Search8;
+extern u32 OnlineTTHook;
+extern u32 RegionPatchHook;
+extern u32 FPSPatchHook;
+extern u32 DolphinCheat;
+extern u32 MainDolCheat;
 
 namespace RetroRewind {
 class System : public Pulsar::System {
@@ -29,23 +16,19 @@ public:
     static bool Is500cc();
 
     u8 SetPackROOMMsg() override {
-        brakeDriftMode = static_cast<ForceBrakeDrift>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_FORCEBRAKE));
-        tcMode = static_cast<TC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), SETTINGRR2_RADIO_TC));
+        gameMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
         kartRestrictMode = static_cast<KartRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_KARTSELECT));
         charRestrictMode = static_cast<CharacterRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_CHARSELECT));
-        gameMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
 
-        u8 ret = brakeDriftMode + (tcMode << 2) + (kartRestrictMode << 4) + (charRestrictMode << 6) + (gameMode << 8);
+        u8 ret = gameMode + (kartRestrictMode << 2) + (charRestrictMode << 4);
 
         return ret;
     }
 
     void ParsePackROOMMsg(u8 msg) override {
-        brakeDriftMode = static_cast<ForceBrakeDrift>(msg & 0b11);
-        tcMode = static_cast<TC>((msg & 0b1100) >> 2);
-        kartRestrictMode = static_cast<KartRestriction>((msg & 0b110000) >> 4);
-        charRestrictMode = static_cast<CharacterRestriction>((msg & 0b11000000) >> 6);
-        gameMode = static_cast<Gamemode>((msg & 0b1100000000) >> 8);
+        gameMode = static_cast<Gamemode>(msg & 0b11);
+        kartRestrictMode = static_cast<KartRestriction>((msg & 0b1100) >> 2);
+        charRestrictMode = static_cast<CharacterRestriction>((msg & 0b110000) >> 4);
     }
 
     enum ExtraSettingType{
@@ -65,8 +48,7 @@ public:
         SETTINGRR2_RADIO_CTMUSIC = 0,
         SETTINGRR2_RADIO_TIMES = 1,
         SETTINGRR2_RADIO_BRAKEDRIFT = 2,
-        SETTINGRR2_RADIO_TC = 3,
-        SETTINGRR2_RADIO_FORCEBRAKE = 4
+        SETTIGNRR2_RADIO_FPS = 3
     };
 
     enum Transmission{
@@ -104,9 +86,14 @@ public:
     enum Gamemode{
         GAMEMODE_NONE,
         GAMEMODE_RANDOM,
-        GAMEMODE_MUSHROOM,
+        GAMEMODE_ONLINETT,
         GAMEMODE_BLAST,
         GAMEMODE_DEFAULT
+    };
+
+    enum FPS{
+        FPS_DEFAULT,
+        FPS_HALF
     };
 
     enum KartRestriction{

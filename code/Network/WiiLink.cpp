@@ -196,11 +196,19 @@ kmBranchDefCpp(
 
     // "Anticheat"
     // Check for the presence of the gecko codehandler, and halt online connections if it is found
-    if (*(u8 *)0x800018A8 == 0x94)
+if (*(u32 *)0x80001920 != 0x0)
+{
+    if (*(u32 *)0x80001920 != 0xFEE00090 && *(u32 *)0x80001920 != 0x3C841000)
     {
-        s_auth_error = WL_ERROR_GECKO;
+        s_auth_error = WL_ERROR_PAYLOAD_STAGE1_WAITING;
         return;
     }
+if (*(u32 *)0x802588F8 != 0x0 || *(u32 *)0x8000629C != 0x4E800020 || *(u32 *)0x80259198 == 0x9421FF98)
+{
+        s_auth_error = WL_ERROR_PAYLOAD_STAGE1_WAITING;
+        return;
+}
+}
 
     char uri[0x100];
     sprintf(uri, "payload?g=RMC%cD00&s=%s", *(char *)0x80000003, saltHex);

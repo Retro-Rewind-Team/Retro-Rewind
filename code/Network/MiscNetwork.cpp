@@ -13,13 +13,12 @@ namespace Pulsar {
 namespace Network {
 //Overwrites CC rules -> 10% 100, 65% 150, 25% mirror and/or in frooms, overwritten by host setting
 static void DecideCC(CustomSELECTHandler& handler) {
-    if(CupsConfig::IsRegsSituation()) reinterpret_cast<RKNet::SELECTHandler&>(handler).DecideEngineClass();
-    else {
         const u8 ccSetting = Settings::Mgr::GetSettingValue(Settings::SETTINGSTYPE_HOST, SETTINGHOST_RADIO_CC);
         RKNet::Controller* controller = RKNet::Controller::sInstance;
         const RKNet::RoomType roomType = controller->roomType;
         u8 ccClass = 2; //1 100, 2 150, 3 mirror
         if(roomType == RKNet::ROOMTYPE_VS_REGIONAL
+            || roomType == RKNet::ROOMTYPE_VS_WW
             || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL) {
             Random random;
             const u32 result = random.NextLimited(100); //25
@@ -27,7 +26,6 @@ static void DecideCC(CustomSELECTHandler& handler) {
             u32 prob150 = Info::GetProb150(); //00
             if(result < 100 - (prob100 + prob150)) ccClass = 3;
             else if(result < 100 - prob100) ccClass = 2;
-        }
         else if(ccSetting == HOSTSETTING_CC_100) ccClass = 1;
         else if(ccSetting == HOSTSETTING_CC_150) ccClass = 2;
         else if(ccSetting == HOSTSETTING_CC_MIRROR) ccClass = 3;
