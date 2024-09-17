@@ -612,9 +612,9 @@ asmFunc NoSlipStream() {
         cmpwi  r3, 0;
         lis r12, 0x8000;
         lbz r12, 0x1202(r12);
-        cmpwi r12, 0;
-        beq end;
-        cmpwi  r3, 1;
+        cmpwi cr7, r12, 0;
+        beq cr7, end;
+        crclr 2;
 
     end:
         blr;
