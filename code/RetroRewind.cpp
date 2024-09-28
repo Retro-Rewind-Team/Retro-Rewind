@@ -17,7 +17,7 @@ void System::AfterInit(){
 
     Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR]=4;
     Pulsar::UI::SettingsPanel::scrollerCount[SETTINGSTYPE_RR]=1;
-    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=4;
+    Pulsar::UI::SettingsPanel::radioButtonCount[SETTINGSTYPE_RR2]=5;
 
     //Transmission
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR][0]=4;
@@ -45,6 +45,9 @@ void System::AfterInit(){
 
     //30 FPS
     Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][3]=2;
+
+    //High Data Rate
+    Pulsar::UI::SettingsPanel::buttonsPerPagePerRow[SETTINGSTYPE_RR2][4]=2;
 }
 
 
@@ -79,13 +82,22 @@ bool System::Is500cc() {
     return FORCEBRAKEDRIFT_DISABLED;
     }
 
+    HostSettingHostCC System::GetCCMode(){
+    const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
+    const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
+    if (isFroom){
+        return GetsInstance()->ccMode;
+    }
+    return HOSTSETTING_CC_NORMAL;
+    }
+
     System::Gamemode System::GetGameMode(){
         const bool isRegs = Pulsar::CupsConfig::IsRegsSituation();
         const GameMode gameMode = RaceData::sInstance->menusScenario.settings.gamemode;
         const bool isFroom = gameMode == MODE_PRIVATE_VS || gameMode == MODE_PRIVATE_BATTLE;
         const bool isTTs = gameMode == MODE_TIME_TRIAL;
         const bool isVS = gameMode == MODE_VS_RACE;
-        const bool isRegional = gameMode == MODE_PUBLIC_VS;
+        const bool isRegional = gameMode == MODE_PUBLIC_VS || gameMode == MODE_PUBLIC_BATTLE;
         if (!isRegs){
             if (isFroom){
                 return GetsInstance()->gameMode;
@@ -184,9 +196,6 @@ kmWrite32(0x80257B24, 0x30);
 kmWrite32(0x80257F44, 0x30);
 
 //Online codes
-//High Data Rate [MrBean35000vr + Chadderz]
-kmWrite32(0x80657EA8, 0x28040007);
-
 //Instant Voting Roulette Decide [Ro]
 kmWrite32(0x80643BC4, 0x60000000);
 kmWrite32(0x80643C2C, 0x60000000);
@@ -469,23 +478,9 @@ asmFunc AntiItemColCrash() {
 kmCall(0x807A1A54, AntiItemColCrash);
 
 //Force 30 FPS [Vabold]
-asmFunc Force30Frames() {
-    ASM(
-        nofralloc;
-    loc_0x0:
-        lbz r0, 0x25(r3);
-        lis r12, 0x8000;
-        lbz r12, 0x1204(r12);
-        cmpwi r12, 0;
-        beq end;
-        li r0, 2;
-
-    end:
-        blr;
-    )
-}
-kmCall(0x8055422C, Force30Frames);
-kmWrite32(0x80554248, 0x7D836378);
+kmWrite32(0x80554224, 0x3C808000);
+kmWrite32(0x80554228, 0x88841204);
+kmWrite32(0x8055422C, 0x48000044);
 
 //TT Cycles
 kmWrite32(0x80554b68, 0x38000002);
@@ -537,8 +532,26 @@ loc_0x14:
 }
 kmBranch(0x8082A8F4, GetTTCycle3);
 
+//High Data Rate Toggle
+asmFunc DataRate() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        cmplwi r4, 17;
+        lis r12, 0x8000;
+        lbz r12, 0x1206(r12);
+        cmpwi r12, 0;
+        beq end;
+        cmplwi r4, 0x7;
 
-//Online TT Codes [Melg]
+    end:
+        blr;
+    )
+}
+kmCall(0x80657EA8, DataRate);
+
+
+//Online TT Codes [Melg and co.]
 asmFunc TTStartPosition() {
     ASM(
         nofralloc;
@@ -593,8 +606,7 @@ kmCall(0x8056F85C, NoCollision);
 asmFunc NoItems() {
     ASM(
         nofralloc;
-    loc_0x0:
-        
+    loc_0x0:        
         lis r12, 0x8000;
         lbz r12, 0x1202(r12);
         cmpwi r12, 1;
@@ -612,9 +624,9 @@ asmFunc NoSlipStream() {
         cmpwi  r3, 0;
         lis r12, 0x8000;
         lbz r12, 0x1202(r12);
-        cmpwi r12, 0;
-        beq end;
-        cmpwi  r3, 1;
+        cmpwi cr7, r12, 0;
+        beq cr7, end;
+        crclr 2;
 
     end:
         blr;
@@ -639,6 +651,39 @@ asmFunc ItemVanish() {
 }
 kmCall(0x8079F748, ItemVanish);
 
+asmFunc GhostRacer1() {
+    ASM(
+        nofralloc;
+    loc_0x0:
+        lwz	r0, 0x0B70 (r5);
+        lis r12, 0x8000;
+        lbz r12, 0x1202(r12);
+        cmpwi r12, 0;
+        beq end;
+        li r0, 0x2;
+
+    end:
+        blr;
+    )
+}
+kmCall(0x805B15C0, GhostRacer1);
+
+asmFunc GhostRacer2() {
+    ASM(
+    loc_0x0:
+        lis r7, 0x809C;
+        lwz r12, -10456(r7);
+        add r12, r12, r0;
+        lwz r12, 56(r12);
+        cmpwi r12, 0x0;
+        beq- loc_0x1C;
+        li r5, 0x1;
+
+    loc_0x1C:
+    )
+}
+kmCall(0x80576B58, GhostRacer2);
+
  void TTsOnline() {
     const System::Gamemode gameMode = System::GetGameMode();
     OnlineTTHook = 0x00;
@@ -647,7 +692,7 @@ kmCall(0x8079F748, ItemVanish);
     }
     Pulsar::System::CacheInvalidateAddress(OnlineTTHook);
  }
-static PageLoadHook TTsOnlineHook(TTsOnline);
+static PageLoadHook PatchOnlineTT(TTsOnline);
 
  void FPSPatch() {
     FPSPatchHook = 0x00;
@@ -656,13 +701,21 @@ static PageLoadHook TTsOnlineHook(TTsOnline);
     }
     Pulsar::System::CacheInvalidateAddress(FPSPatchHook);
  }
-static PageLoadHook FPSPatchLmao(FPSPatch);
+static PageLoadHook PatchFPS(FPSPatch);
 
+ void DataRatePatch() {
+    DataRateHook = 0x00;
+    if (static_cast<RetroRewind::System::FPS>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR2), RetroRewind::System::SETTINGRR2_RADIO_DATARATE)) == RetroRewind::System::DATARATE_ENABLED) {
+        DataRateHook = 0x00FF0100;
+    }
+    Pulsar::System::CacheInvalidateAddress(DataRateHook);
+ }
+static PageLoadHook PatchDataRate(DataRatePatch);
+
+//Simple Cheat code crash [Cats4Life]
 void CodeCrash() {
     if(DolphinCheat == 0x00000001) Pulsar::Debug::FatalError("Please disable all cheat codes.");
     else if(MainDolCheat == 0x9421FF58) Pulsar::Debug::FatalError("Report this crash to ZPL's Rewind Hideaway.");
 }
-
 static PageLoadHook CRASH_HOOK(CodeCrash);
-
 } // namespace RetroRewind

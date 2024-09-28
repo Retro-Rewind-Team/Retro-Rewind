@@ -5,7 +5,7 @@
 #include <MarioKartWii/System/Identifiers.hpp>
 
 extern u32 OnlineTTHook;
-extern u32 RegionPatchHook;
+extern u32 DataRateHook;
 extern u32 FPSPatchHook;
 extern u32 DolphinCheat;
 extern u32 MainDolCheat;
@@ -19,8 +19,9 @@ public:
         gameMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
         kartRestrictMode = static_cast<KartRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_KARTSELECT));
         charRestrictMode = static_cast<CharacterRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_CHARSELECT));
+        ccMode = static_cast<HostSettingHostCC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_HOST), SETTINGHOST_RADIO_CC));
 
-        u8 ret = gameMode + (kartRestrictMode << 2) + (charRestrictMode << 4);
+        u8 ret = gameMode + (kartRestrictMode << 2) + (charRestrictMode << 4) + (ccMode << 6);
 
         return ret;
     }
@@ -29,6 +30,7 @@ public:
         gameMode = static_cast<Gamemode>(msg & 0b11);
         kartRestrictMode = static_cast<KartRestriction>((msg & 0b1100) >> 2);
         charRestrictMode = static_cast<CharacterRestriction>((msg & 0b110000) >> 4);
+        ccMode = static_cast<HostSettingHostCC>((msg & 0b11000000) >> 6);
     }
 
     enum ExtraSettingType{
@@ -48,7 +50,8 @@ public:
         SETTINGRR2_RADIO_CTMUSIC = 0,
         SETTINGRR2_RADIO_TIMES = 1,
         SETTINGRR2_RADIO_BRAKEDRIFT = 2,
-        SETTIGNRR2_RADIO_FPS = 3
+        SETTIGNRR2_RADIO_FPS = 3,
+        SETTINGRR2_RADIO_DATARATE = 4
     };
 
     enum Transmission{
@@ -84,11 +87,11 @@ public:
     };
 
     enum Gamemode{
-        GAMEMODE_NONE,
+        GAMEMODE_DEFAULT,
         GAMEMODE_RANDOM,
         GAMEMODE_ONLINETT,
         GAMEMODE_BLAST,
-        GAMEMODE_DEFAULT
+        GAMEMODE_NONE
     };
 
     enum FPS{
@@ -120,6 +123,11 @@ public:
     enum TC{
         TC_MEGA,
         TC_DEFAULT
+    };
+
+    enum DateRate{
+        DATARATE_DISABLED,
+        DATARATE_ENABLED
     };
 
     enum CharButtonId{
@@ -177,6 +185,7 @@ public:
     WeightClass weight;
     ForceBrakeDrift brakeDriftMode;
     TC tcMode;
+    HostSettingHostCC ccMode;
 
     u32 noRaceProgressionTimer[4];
     float lastRaceCompletion[4];
@@ -189,6 +198,7 @@ public:
     static Gamemode GetGameMode();
     static ForceBrakeDrift GetBrakeDrift();
     static TC GetTCMode();
+    static HostSettingHostCC GetCCMode();
     
     void AfterInit() override;
 };

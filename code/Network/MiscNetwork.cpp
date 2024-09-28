@@ -19,18 +19,11 @@ static void DecideCC(CustomSELECTHandler& handler) {
         u8 ccClass = 2; //1 100, 2 150, 3 mirror
         if(roomType == RKNet::ROOMTYPE_VS_REGIONAL
             || roomType == RKNet::ROOMTYPE_VS_WW
-            || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL) {
-            Random random;
-            const u32 result = random.NextLimited(100); //25
-            u32 prob100 = Info::GetProb100(); //100
-            u32 prob150 = Info::GetProb150(); //00
-            if(result < 100 - (prob100 + prob150)) ccClass = 3;
-            else if(result < 100 - prob100) ccClass = 2;
+            || roomType == RKNet::ROOMTYPE_FROOM_HOST && ccSetting == HOSTSETTING_CC_NORMAL) ccClass = 2;
         else if(ccSetting == HOSTSETTING_CC_100) ccClass = 1;
         else if(ccSetting == HOSTSETTING_CC_150) ccClass = 2;
-        else if(ccSetting == HOSTSETTING_CC_MIRROR) ccClass = 3;
+        else if(ccSetting == HOSTSETTING_CC_500) ccClass = 1;
         handler.toSendPacket.engineClass = ccClass;
-    }
 
 }
 kmCall(0x80661404, DecideCC);

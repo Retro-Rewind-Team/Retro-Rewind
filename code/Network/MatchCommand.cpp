@@ -25,7 +25,7 @@ kmCall(0x800dc3bc, MoveSize);
 DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize) {
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
-        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
+        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW;
 
     Pulsar::System* system = Pulsar::System::sInstance;
     system->isCustomDeny = false;
@@ -37,7 +37,7 @@ DWC::MatchCommand Process(DWC::MatchCommand type, const void* data, u32 dataSize
             || strcmp(packet->pulInfo.modFolderName, system->GetModFolder()) != 0
             || !system->CheckUserInfo(packet->pulInfo.userInfo)) {
             system->isCustomDeny = true;
-            if(roomType == RKNet::ROOMTYPE_VS_REGIONAL) system->deniesCount++;
+            if(roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_VS_WW) system->deniesCount++;
             type = DWC::MATCH_COMMAND_RESV_DENY;
         }
     }
@@ -61,7 +61,7 @@ static void HasBeenPulsarDenied(int r3, const char* string) {
     Pulsar::System* system = Pulsar::System::sInstance;
     if(error == 0x13) {
         isCustomDeny = true;
-        if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) system->deniesCount++;
+        if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW) system->deniesCount++;
     }
     Pulsar::System::sInstance->isCustomDeny = isCustomDeny;
     DWC::Printf(r3, string);
@@ -86,7 +86,7 @@ kmCall(0x800dc4a0, ProcessWrapper);
 void Send(DWC::MatchCommand type, u32 pid, u32 ip, u16 port, void* data, u32 dataSize) {
     const RKNet::RoomType roomType = RKNet::Controller::sInstance->roomType;
     const bool isCustom = roomType == RKNet::ROOMTYPE_FROOM_NONHOST || roomType == RKNet::ROOMTYPE_FROOM_HOST
-        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL;
+        || roomType == RKNet::ROOMTYPE_VS_REGIONAL || roomType == RKNet::ROOMTYPE_JOINING_REGIONAL || roomType == RKNet::ROOMTYPE_VS_WW || roomType == RKNet::ROOMTYPE_JOINING_WW;
     if(type == DWC::MATCH_COMMAND_RESERVATION && isCustom) {
         ResvPacket packet(*reinterpret_cast<const DWC::Reservation*>(data));
         System::sInstance->SetUserInfo(packet.pulInfo.userInfo);
@@ -99,7 +99,7 @@ kmCall(0x800df078, Send);
 
 static void ResetDenyCounter(UIControl* control, u32 soundId, u32 r5) {
     control->PlaySound(soundId, r5);
-    if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL) {
+    if(RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_REGIONAL || RKNet::Controller::sInstance->roomType == RKNet::ROOMTYPE_VS_WW) {
         Pulsar::System::sInstance->deniesCount = 0;
     }
 }
