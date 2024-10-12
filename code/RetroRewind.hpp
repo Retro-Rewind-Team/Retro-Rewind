@@ -7,6 +7,7 @@
 extern u32 OnlineTTHook;
 extern u32 DataRateHook;
 extern u32 FPSPatchHook;
+extern u32 BattleStartHook;
 extern u32 DolphinCheat;
 extern u32 MainDolCheat;
 
@@ -16,19 +17,19 @@ public:
     static bool Is500cc();
 
     u8 SetPackROOMMsg() override {
-        gameMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
         kartRestrictMode = static_cast<KartRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_KARTSELECT));
+        hostMode = static_cast<Gamemode>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_SCROLLER_GAMEMODES));
         charRestrictMode = static_cast<CharacterRestriction>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(System::SETTINGSTYPE_RR), SETTINGRR_RADIO_CHARSELECT));
         ccMode = static_cast<HostSettingHostCC>(Pulsar::Settings::Mgr::GetSettingValue(static_cast<Pulsar::Settings::Type>(Pulsar::Settings::SETTINGSTYPE_HOST), SETTINGHOST_RADIO_CC));
 
-        u8 ret = gameMode + (kartRestrictMode << 2) + (charRestrictMode << 4) + (ccMode << 6);
+        u8 ret = kartRestrictMode + (hostMode << 2) + (charRestrictMode << 4) + (ccMode << 6);
 
         return ret;
     }
 
     void ParsePackROOMMsg(u8 msg) override {
-        gameMode = static_cast<Gamemode>(msg & 0b11);
-        kartRestrictMode = static_cast<KartRestriction>((msg & 0b1100) >> 2);
+        kartRestrictMode = static_cast<KartRestriction>(msg & 0b11);
+        hostMode = static_cast<Gamemode>((msg & 0b1100) >> 2);
         charRestrictMode = static_cast<CharacterRestriction>((msg & 0b110000) >> 4);
         ccMode = static_cast<HostSettingHostCC>((msg & 0b11000000) >> 6);
     }
@@ -180,7 +181,7 @@ public:
     };
 
     KartRestriction kartRestrictMode;
-    Gamemode gameMode;
+    Gamemode hostMode;
     CharacterRestriction charRestrictMode;
     WeightClass weight;
     ForceBrakeDrift brakeDriftMode;
