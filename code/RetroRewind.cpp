@@ -711,6 +711,99 @@ end:
 }
 kmCall(0x80576B58, GhostRacer2);
 
+extern "C" void sInstance__Q25Input7Manager(void*);
+asmFunc ComboSwitch() {
+  ASM(
+      nofralloc;
+loc_0x0:
+  lis       r12, 0x8000;
+  lbz       r12, 0x1202(r12);
+  cmpwi     r12, 0;
+  beq       original;
+  lis       r3, sInstance__Q25Input7Manager@ha;
+  lis       r12, 0x8150;
+  lwz       r5, 0x1634(r12);
+  cmpwi     r5, 0;
+  beq-      loc_0x9C;
+  lwz       r5, 0x16BC(r5);
+  cmpwi     r5, 0x78;
+  bge+      loc_0x2C;
+  li        r11, 0x1;
+  stb       r11, 0x162F(r12);
+  b         loc_0x9C;
+
+loc_0x2C:
+  lhz       r7, 0x1C(r28);
+  cmpwi     r5, 0x177;
+  blt+      loc_0x50;
+  lis       r11, 0x8000;
+  lbz       r5, 0x1634(r11);
+  cmpwi     r5, 0x1;
+  beq-      loc_0x50;
+  lbz       r5, 0x3C(r28);
+  li        r6, 0;
+
+loc_0x50:
+  lwz       r6, sInstance__Q25Input7Manager@l(r3);
+  lbz       r6, 0x61(r6);
+  cmpwi     r6, 0x4;
+  bne-      loc_0x64;
+  li        r7, 0x1608;
+
+loc_0x64:
+  cmpwi     r6, 0x8;
+  bne-      loc_0x70;
+  li        r7, 0x1617;
+
+loc_0x70:
+  cmpwi     r6, 0x20;
+  bne+      loc_0x7C;
+  li        r7, 0xF16;
+
+loc_0x7C:
+  cmpwi     r6, 0x40;
+  bne+      loc_0x88;
+  li        r7, 0x1620;
+
+loc_0x88:
+  cmpwi     r6, 0x10;
+  bne+      loc_0x94;
+  li        r7, 0xD1E;
+
+loc_0x94:
+  stw       r7, 0x1630(r12);
+  sth       r7, 0x1C(r28);
+
+loc_0x9C:
+  blr;
+
+original:
+  lis       r3, sInstance__Q25Input7Manager@ha;
+  blr;
+  )
+}
+kmCall(0x80660FF0, ComboSwitch);
+
+asmFunc ComboSwitch2() {
+  ASM(
+      nofralloc;
+loc_0x0:
+  lis       r12, 0x8000;
+  lbz       r12, 0x1202(r12);
+  cmpwi     r12, 0;
+  beq       original;
+  lis       r3, 0x8150;
+  stw       r28, 0x1634(r3);
+  li        r3, 0x190;
+  blr;
+
+original:
+  li	      r3, 180;
+  blr;
+  )
+}
+kmCall(0x80643C88, ComboSwitch2);
+
 }
 
 namespace VRSystem {
